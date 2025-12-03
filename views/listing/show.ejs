@@ -1,0 +1,92 @@
+<% layout('layouts/boiler') %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <% if (true) { %>
+          <img src="<%= listData.image.url %>" class="card-img-top" alt="<%= listData.title %>" style="height: 500px;">
+        <% } else { %>
+          <img src="https://via.placeholder.com/800x400?text=No+Image" class="card-img-top" alt="No image available">
+        <% } %>
+
+        <div class="card-body">
+          <h2 class="card-title fw-bold text-primary mb-3"><%= listData.title %></h2>
+
+          <h4 class="text-success fw-semibold mb-4">
+           Owner :- <%= listData.owner.username %>
+          </h4>
+
+          <p class="card-text text-muted mb-3">
+            <i class="fa fa-map-marker"></i>
+            <%= listData.location %>, <%= listData.country %>
+          </p>
+
+          <p class="text-secondary mb-4">
+            <%= listData.description %>
+          </p>
+
+          <h4 class="text-success fw-semibold mb-4">
+            ₹<%= listData.price.toLocaleString("en-IN") %> / night
+          </h4>
+        
+         <% if(currUser){ %>
+          <form class="py-4 needs-validation" method="post" action="/listings/review/<%= listData._id %>" novalidate >
+              <h3 class="card-title fw-bold text-primary mb-3">Leave a Review </h3>
+              <div class="">
+                  <label for="rating">Rating</label>
+                  <input class="form-control" type="range" min="1" max="5" id="rating" name="review[rating]">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Comment</label>
+                <textarea 
+                  name="review[Comment]" 
+                  class="form-control" 
+                  rows="4" placeholder="Type for suggestion" required></textarea>
+              </div><div class="pb-5">
+                <button class="btn btn-outline-primary">submit</button>
+              </div>
+              <hr>
+              <h3>All Reviews </h3>
+              <br>
+          </form>
+        <% } %>
+
+          <ul class="list-group list-group-numbered">
+              <% for(let review of listData.review) { %>
+                  <form method="POST" action="/listings/review/<%= listData._id %>/<%= review._id %>/CommentDelete?_method=DELETE">
+                      <li class="list-group-item list-group-item-primary"> <%= review.Comment %>  <span class="badge text-bg-primary rounded-pill mb-3 "><%= review.rating %></span>
+                      <p>Created by -- <%= review.author.username %></p>
+                      </li>
+                      
+                      <% if(currUser && listData.owner.equals(currUser._id)){ %> <button class="btn btn-outline-danger mb-3"> Delete </button> <%}%>
+                  </form>
+              <% } %>
+          </ul>
+        <% if(currUser && listData.owner.equals(currUser._id)){ %>
+          <div class="d-flex gap-3">
+            <a href="/listings/<%= listData._id %>/edit" class="btn btn-outline-primary">
+              <i class="fa fa-edit"></i> Edit Listing
+            </a>
+
+            <form method="POST" action="/listings/<%= listData._id %>/delete?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+              <button class="btn btn-outline-danger">
+                <i class="fa fa-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+        <% } %>
+        </div>
+      </div>
+
+      <div class="mt-4 text-center">
+        <a href="/listings" class="btn btn-link text-decoration-none">
+          ← Back to All Listings
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+

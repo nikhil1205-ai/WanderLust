@@ -1,0 +1,94 @@
+<% layout('layouts/boiler') %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <h2 class="fw-bold text-primary mb-4">Create New Listing</h2>
+
+        <form method="POST" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
+
+          <!-- Title -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Title</label>
+            <input 
+              type="text" 
+              name="listingNew[title]" 
+              class="form-control" 
+              placeholder="Enter title"
+              required>
+              <div class="valid-feedback">Title is Ok</div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea 
+              name="listingNew[description]" 
+              class="form-control" 
+              rows="4"
+              placeholder="Enter description"
+              required></textarea>
+          </div>
+
+          <!-- Image -->
+
+          <div class="mb-3"> 
+            <label class="form-label fw-semibold">Upload Image</label>
+            <input 
+              type="file" 
+              name="listingNew[image]" 
+              class="form-control">
+          </div>
+
+          <!-- Price -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Price (₹)</label>
+            <input 
+              type="number" 
+              name="listingNew[price]" 
+              class="form-control" 
+              placeholder="Enter price"
+              required>
+              <div class="invalid-feedback">Enter price</div>
+          </div>
+
+          <!-- Location -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Location</label>
+            <input 
+              type="text" 
+              name="listingNew[location]" 
+              class="form-control" 
+              placeholder="Enter location"
+              required>
+          </div>
+
+          <!-- Country -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Country</label>
+            <input 
+              type="text" 
+              name="listingNew[country]" 
+              class="form-control" 
+              placeholder="Enter country"
+              required>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex justify-content-between">
+            <a href="/listings" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="fa fa-plus"></i> Add Listing
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

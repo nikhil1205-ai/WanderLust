@@ -1,0 +1,38 @@
+<% 
+  const successesInline = (typeof success === 'string' && success.length) ? [success] : (Array.isArray(success) ? success : []);
+  const errorsInline    = (typeof error   === 'string' && error.length) ? [error]   : (Array.isArray(error)   ? error   : []);
+%>
+
+<% if (errorsInline.length) { %>
+  <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 my-3" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex align-items-start gap-3">
+      <i class="bi bi-exclamation-triangle-fill fs-3 flex-shrink-0" aria-hidden="true"></i>
+      <div>
+        <strong class="d-block mb-1">There <%= errorsInline.length === 1 ? 'was an error' : 'were ' + errorsInline.length + ' errors' %>:</strong>
+        <ul class="mb-0 text-danger">
+          <% errorsInline.forEach(msg => { %>
+            <li style="color: red;"> <%= msg %></li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } if(successesInline.length) { %>
+  <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 my-3" role="status" aria-live="polite" aria-atomic="true">
+    <div class="d-flex align-items-center gap-3">
+      <i class="bi bi-check-circle-fill fs-3 flex-shrink-0" aria-hidden="true"></i>
+      <div>
+        <strong class="d-block mb-1"><%= successesInline.length === 1 ? 'Success' : successesInline.length + ' messages' %></strong>
+        <% if (successesInline.length === 1) { %>
+          <div><%= successesInline[0] %></div>
+        <% } else { %>
+          <ul class="mb-0">
+            <% successesInline.forEach(msg => { %><li><%= msg %></li><% }) %>
+          </ul>
+        <% } %>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>

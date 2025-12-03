@@ -1,0 +1,122 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #0071c2;
+  border-color: #0071c2;
+}
+
+.card {
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.btn-outline-primary,
+.btn-outline-danger {
+  border-width: 2px;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0071c2;
+  border-color: #0071c2;
+  color: #fff;
+}
+
+.btn-outline-danger:hover {
+  background-color: #d9534f;
+  border-color: #d9534f;
+  color: #fff;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+}
+
+.form-label {
+  color: #495057;
+}
+
+input.form-control, textarea.form-control {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+}
+
+input.form-control:focus, textarea.form-control:focus {
+  border-color: #0071c2;
+  box-shadow: 0 0 0 0.15rem rgba(0, 113, 194, 0.25);
+}
+
+.btn-primary {
+  background-color: #0071c2;
+  border-color: #0071c2;
+}
+
+.btn-primary:hover {
+  background-color: #005b9f;
+  border-color: #005b9f;
+}
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+}
+
+.form-label {
+  color: #495057;
+}
+
+input.form-control, textarea.form-control {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+}
+
+input.form-control:focus, textarea.form-control:focus {
+  border-color: #0071c2;
+  box-shadow: 0 0 0 0.15rem rgba(0, 113, 194, 0.25);
+}
+
+.btn-primary {
+  background-color: #0071c2;
+  border-color: #0071c2;
+}
+
+.btn-primary:hover {
+  background-color: #005b9f;
+  border-color: #005b9f;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+}
+.footer {
+  background-color: #f8f9fa;
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+.footer .social-icons a {
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+}
+
+.footer .social-icons a:hover {
+  color: #0071c2;
+}

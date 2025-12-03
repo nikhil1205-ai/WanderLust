@@ -1,0 +1,84 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+  <div class="container-fluid">
+
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold text-primary" href="/">
+      Wanderlust <i class="fa-solid fa-globe"></i>
+    </a>
+
+    <!-- Mobile Toggler -->
+    <button 
+      class="navbar-toggler" 
+      type="button" 
+      data-bs-toggle="collapse" 
+      data-bs-target="#wanderlustNavbar" 
+      aria-controls="wanderlustNavbar" 
+      aria-expanded="false" 
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar Content -->
+    <div class="collapse navbar-collapse" id="wanderlustNavbar">
+
+      <!-- Left Menu -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <li class="nav-item">
+          <a class="nav-link active fw-semibold" href="/listings">
+            <i class="fa-solid fa-home"></i> Home
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link fw-semibold" href="/listings/new">
+            <i class="fa-solid fa-circle-plus"></i> Add Listing
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link fw-semibold" href="/">
+            <i class="fa-solid fa-map-location-dot"></i> Destinations
+          </a>
+        </li>
+
+      </ul>
+
+      <!-- Search Bar -->
+      <form class="d-flex me-3" role="search" action="/search" method="GET">
+        <input 
+          class="form-control me-2" 
+          type="search" 
+          placeholder="Search places..." 
+          name="q" 
+          aria-label="Search"
+        />
+        <button class="btn btn-primary" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
+
+      <!-- Right-Side Buttons -->
+      <div class="d-flex align-items-center gap-2">
+      <% if(!currUser){ %>
+        <!-- Login Button -->
+        <a href="/User/login" class="btn btn-outline-primary">
+          <i class="fa-solid fa-user"></i> Login
+        </a>
+
+        <!-- Signup Button -->
+        <a href="/User/Signup" class="btn btn-primary">
+          <i class="fa-solid fa-user-plus"></i> Signup
+        </a>
+      <% }else{ %>
+
+        <a href="/User/logout" class="btn btn-primary">
+          <i class="fa-solid fa-user"></i> Logout
+        </a>
+      <% } %>
+      </div>
+
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,45 @@
+<% layout('layouts/boiler')%> 
+
+<!-- <div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold text-primary"><i class="fa fa-plane" aria-hidden="true"></i> All Listings</h1>
+    <a href="/listings/new" class="btn btn-outline-primary">
+      <i class="fa fa-plus"></i> Create New Listing
+    </a>
+  </div> -->
+
+  <div class="row">
+    <% if (allist.length === 0) { %>
+      <div class="col-12 text-center text-muted">
+        <p>No listings found. Create one to get started!</p>
+      </div>
+    <% } %>
+
+    <% for (let list of allist) { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+        <a href="/listings/<%= list._id %>" style="text-decoration: none;">
+
+          <div class="card-body">
+            <img src="<%= list.image.url %>" class="card-img-top" alt="<%= list.title %>" style="height: 200px; object-fit: cover; width: 100%;">>
+            <h5 class="card-title">
+              <p  class="text-decoration-none text-dark">
+                <%= list.title %>
+              </p>
+            </h5>
+            <% if (list.location) { %>
+              <p class="text-muted mb-2">
+                <i class="fa fa-map-marker"></i> <%= list.location %>
+              </p>
+            <% } %>
+            <% if (list.price) { %>
+              <p class="fw-semibold text-success">$<%= list.price %> / night</p>
+            <% } %>
+          </div>
+
+        </a>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
