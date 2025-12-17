@@ -1,48 +1,77 @@
-const express=require("express");
-const router=express.Router();
-const  User=require("../models/user.js");
+const express = require("express");
+const router = express.Router();
+
+const User = require("../models/user");
 const passport = require("passport");
-const {redirectUrl}=require("../middleware.js");
 
-router.get('/signup',(req,res) => {
-    res.render("./User/Signup.ejs");
-})
+const wrapAsync = require("../utils/wrapAsync");
+const ExpressError = require("../utils/ExpressError");
+const { redirectUrl } = require("../middleware");
 
-router.post('/signup',async (req,res)=>{
-    let {name,email,password}=req.body;
-    let newUser=new User({
-        email:email,
-        username:name
+/* ===============================
+   SIGNUP
+================================ */
+
+// signup form
+router.get("/signup", (req, res) => {
+  res.render("user/signup");
+});
+
+// signup logic
+router.post(
+  "/signup",
+  wrapAsync(async (req, res, next) => {
+    const { name, email, password } = req.body;
+
+    const user = new User({
+      username: name,
+      email,
     });
-    let newu=await User.register(newUser,password);
-    req.flash("success","User added.. ");
-    req.login(newu,(err)=>{
-        if(err) return next(err);
-        req.flash("success","you are Login");
-        return res.redirect("/listings");
-    })
-})
 
-router.get('/login',(req,res)=>{
-    res.render('./User/login.ejs');
-})
+    const registeredUser = await User.register(user, password);
 
-router.post('/login',redirectUrl,passport.authenticate("local",
-    {failureRedirect:'/User/login',failureFlash:true}),
-async (req,res)=>{ 
-    redirect=res.locals.redirectUrl;
-    if(redirect) res.redirect(redirect);
-    else res.redirect("/listings");
-})
+    req.login(registeredUser, (err) => {
+      if (err) return next(err);
+      req.flash("success", "Welcome to Zerodha Clone!");
+      res.redirect("/listings");
+    });
+  })
+);
 
-router.get("/logout",(req,res,next)=>{
-    req.logout((err)=>{
-        if(err) return next(err);
-        req.flash("success","you are Logout");
-        res.redirect("/listings");
-    })
-})
+/* ===============================
+   LOGIN
+================================ */
 
+// login form
+router.get("/login", (req, res) => {
+  res.render("user/login");
+});
 
+// login logic
+router.post(
+  "/login",
+  redirectUrl,
+  passport.authenticate("local", {
+    failureRedirect: "/user/login",
+    failureFlash: true,
+  }),
+  (req, res) => {
+    const redirect = res.locals.redirectUrl || "/listings";
+    req.flash("success", "Welcome back!");
+    res.redirect(redirect);
+  }
+);
 
-module.exports=router;
+/* ===============================
+   LOGOUT
+================================ */
+
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    req.flash("success", "You are logged out");
+    res.redirect("/listings");
+  });
+});
+
+module.exports = router;

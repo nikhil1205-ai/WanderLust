@@ -1,116 +1,128 @@
 require("dotenv").config();
+
 const express = require("express");
 const app = express();
+
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const ExpressError = require("./utils/ExpressError.js");
-const session=require("express-session");
-// const MongoStore = require('connect-mongo');
-const listingRouter = require("./Routes/listing.js");
-const reviewRouter = require("./Routes/Review.js");
-const userRouter = require("./Routes/user.js");
-const flash=require('connect-flash');
-const passport=require("passport");
-const localStrategy=require("passport-local");
-const  User=require("./models/user.js");
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
 
-main().then(() => {
-    console.log("connected to DB");
-}).catch((err) => {
-    console.log(err);
-});
+const session = require("express-session");
+const MongoStore = require("connect-mongo").default;
 
-//>>> MongoDB
-async function main() {
-    await mongoose.connect(process.env.MONGODB_URL);
-}
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
+const ExpressError = require("./utils/ExpressError");
+const User = require("./models/user");
+
+// Routes
+const listingRouter = require("./Routes/listing");
+const reviewRouter = require("./Routes/review");
+const userRouter = require("./Routes/user");
+
+/* ===============================
+   DATABASE
+================================ */
+mongoose
+  .connect(process.env.MONGODB_URL)
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.log(err));
+
+/* ===============================
+   APP CONFIG
+================================ */
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({extended: true}));
+
+app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.engine('ejs', ejsMate);
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "public")));
 
-
-app.get("/", (req, res) => {
-    res.redirect("/listings");
+/* ===============================
+   SESSION STORE
+================================ */
+const store = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URL,
+  crypto: {
+    secret: process.env.SESSION_SECRET,
+  },
+  touchAfter: 24 * 60 * 60,
 });
 
-
-// const store= MongoStore.create({ mongoUrl: process.env.MONGODB_URL,
-//     crypto:{
-//       secret:"thisissecret"
-//     },
-//     touchAfter: 24*60*60
-//   });
-
-// store.on("error",()=>{
-//   console.log("Error accour in mongo-connect");
-// })
+store.on("error", (err) => {
+  console.log("Mongo session store error:", err);
+});
 
 const sessionOptions = {
-  // store,
-  secret: process.env.SESSION_SECRET, // put real secret in env
+  store,
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, // better default
+  saveUninitialized: false,
   cookie: {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Date object
+    httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true
-  }
+  },
 };
-
-
 
 app.use(session(sessionOptions));
 app.use(flash());
+
+/* ===============================
+   PASSPORT CONFIG
+================================ */
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(User.createStrategy());
+
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email" },
+    User.authenticate()
+  )
+);
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+/* ===============================
+   GLOBAL LOCALS
+================================ */
 app.use((req, res, next) => {
-  res.locals.currentUser = req.user || null;
+  res.locals.currUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser=req.user;
   next();
-  console.log(res.locals);
-
-
 });
 
-// app.get("/demo",async(req,res)=>{
-//     let fakeUser=new User({
-//         Email:"fghfhghgfhgf@gmail.com",
-//         username:"delta"
-//     });
-//     let newu=await User.register(fakeUser,"hefgfddfllo");
-//     res.send(newu);
-// });
+/* ===============================
+   ROUTES
+================================ */
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
-//>>> Routes
 app.use("/listings", listingRouter);
-app.use("/listings/review", reviewRouter);
-app.use("/User",userRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/user", userRouter);
 
-
-//>>> Error handlings
+/* ===============================
+   ERROR HANDLING
+================================ */
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
 app.use((err, req, res, next) => {
-    let { statusCode=500, message="Something went wrong!" } = err;
-    res.status(statusCode).render("error.ejs", { err });
+  const { statusCode = 500 } = err;
+  res.status(statusCode).render("error", { err });
 });
 
+/* ===============================
+   SERVER
+================================ */
 app.listen(8080, () => {
-    console.log("server is listening to port 8080");
+  console.log("Server running on port 8080");
 });

@@ -1,80 +1,137 @@
-const express=require("express");
-const router=express.Router();
-const wrapAsync= require("../utils/wrapAsync.js");
-const listing=require("../models/listing.js");
-const {listSchema,reviewSchema}=require("../Schema.js");
-const ExpressError= require("../utils/ExpressError.js")
-const {isLoggedIn,isOwner,validateError} =require("../middleware.js");
-const {index} = require("../controllers/listings.js")
-const multer  = require('multer')
-const {storage}=require('../cloudConfig.js');
-const upload = multer({storage});
+const express = require("express");
+const router = express.Router();
 
-//  >>> main
-router.route("/")
-    .get(index)
-    .post(isLoggedIn,validateError,upload.single('listingNew[image]'),async (req,res) => {
-        let url=req.file.path;
-        let filename=req.file.fieldname;
-        let sc=listSchema.validate(req.body);
-        let listingNew = req.body.listingNew;
-        let SaveList= new listing({...listingNew,owner:req.user._id,image:{
-            url:url,
-            filename:filename
-        }});
-        await SaveList.save();
-        req.flash("success","New listing Added");
-        res.redirect("/listings");
-    });
+const wrapAsync = require("../utils/wrapAsync");
+const ExpressError = require("../utils/ExpressError");
 
+const Listing = require("../models/listing");
+const { listSchema } = require("../Schema");
 
-//  >>> ADDing 
-router.get("/new",isLoggedIn,(req,res) => {
-    return res.render("./listing/new.ejs"); 
-})
+const {
+  isLoggedIn,
+  isOwner,
+  validateError,
+} = require("../middleware");
 
+const { index } = require("../controllers/listings");
 
-// >> Showing  
-router.get("/:id",async (req,res) => {
-   let {id}=req.params;
-   let listData= await listing.findById(id)
-   .populate({path:"review",
-       populate:{
-        path:"author",
-       }
-   }).populate("owner");
-   res.render("./listing/show.ejs",{listData});
-})
+const multer = require("multer");
+const { storage } = require("../cloudConfig");
+const upload = multer({ storage });
 
+/* ===============================
+   ROUTES
+================================ */
 
+// INDEX + CREATE
+router
+  .route("/")
+  .get(wrapAsync(index))
+  .post(
+    isLoggedIn,
+    upload.single("listingNew[image]"),
+    validateError,
+    wrapAsync(async (req, res) => {
+      if (!req.file) {
+        throw new ExpressError(400, "Image is required");
+      }
 
-//  >>> EDIT 
-router.get("/:id/edit",isLoggedIn,isOwner,async (req,res)=>{
-    let {id}=req.params;
-    let listData= await listing.findById(id);
-    res.render("./listing/edit.ejs",{listData});
-})
+      const { path: url, filename } = req.file;
 
-router.put("/:id",isLoggedIn,isOwner,upload.single('listingNew[image]'),validateError,async (req,res) => {
-    let {id}=req.params ;
-    let listData= await listing.findByIdAndUpdate(id,req.body.listingNew);
-    if(req.file!=undefined){
-    let url=req.file.path;
-    let filename=req.file.fieldname;
-    listData.image={url,filename};
-    await listData.save();
+      const listing = new Listing({
+        ...req.body.listingNew,
+        owner: req.user._id,
+        image: { url, filename },
+      });
+
+      await listing.save();
+      req.flash("success", "New listing added");
+      res.redirect("/listings");
+    })
+  );
+
+// NEW
+router.get("/new", isLoggedIn, (req, res) => {
+  res.render("listing/new");
+});
+
+// SHOW
+router.get(
+  "/:id",
+  wrapAsync(async (req, res) => {
+    const { id } = req.params;
+
+    const listData = await Listing.findById(id)
+      .populate({
+        path: "review",
+        populate: { path: "author" },
+      })
+      .populate("owner");
+
+    if (!listData) {
+      throw new ExpressError(404, "Listing not found");
     }
-    req.flash("success","Successfully Updated..  ")
-    res.redirect(`/listings/${id}`);
-})
 
-//  >>> DELETE 
-router.delete("/:id/delete",isLoggedIn,isOwner,async (req,res) => {
-    let {id} = req.params;
-    await listing.findByIdAndDelete(id);
-    req.flash("success","listing deleted...  ");
-    res.redirect("/listings")
-})
-   
+    res.render("listing/show", { listData });
+  })
+);
+
+// EDIT FORM
+router.get(
+  "/:id/edit",
+  isLoggedIn,
+  isOwner,
+  wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const listData = await Listing.findById(id);
+
+    if (!listData) {
+      throw new ExpressError(404, "Listing not found");
+    }
+
+    res.render("listing/edit", { listData });
+  })
+);
+
+// UPDATE
+router.put(
+  "/:id",
+  isLoggedIn,
+  isOwner,
+  upload.single("listingNew[image]"),
+  validateError,
+  wrapAsync(async (req, res) => {
+    const { id } = req.params;
+
+    const listing = await Listing.findByIdAndUpdate(
+      id,
+      req.body.listingNew,
+      { new: true }
+    );
+
+    if (req.file) {
+      const { path: url, filename } = req.file;
+      listing.image = { url, filename };
+      await listing.save();
+    }
+
+    req.flash("success", "Successfully updated");
+    res.redirect(`/listings/${id}`);
+  })
+);
+
+// DELETE
+router.delete(
+  "/:id",
+  isLoggedIn,
+  isOwner,
+  wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    await Listing.findByIdAndDelete(id);
+
+    req.flash("success", "Listing deleted");
+    res.redirect("/listings");
+  })
+);
 
 module.exports = router;
