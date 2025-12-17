@@ -20,7 +20,7 @@ const User = require("./models/user");
 
 // Routes
 const listingRouter = require("./Routes/listing");
-const reviewRouter = require("./Routes/review");
+const reviewRouter = require("./Routes/Review");
 const userRouter = require("./Routes/user");
 
 /* ===============================
@@ -91,7 +91,7 @@ passport.deserializeUser(User.deserializeUser());
    GLOBAL LOCALS
 ================================ */
 app.use((req, res, next) => {
-  res.locals.currUser = req.user;
+  res.locals.currUser = req.user || "";
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
